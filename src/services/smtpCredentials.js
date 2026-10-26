@@ -16,11 +16,14 @@ const SMTP_FIELDS = new Set([
   'senderEmail',
 ])
 
+const METADATA_FIELDS = new Set(['configured', 'passwordSet'])
+
 export function validateSmtpCredentials(input, { requirePassword = true } = {}) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     throw new HttpError(400, 'SMTP settings must be an object.')
   }
   for (const field of Object.keys(input)) {
+    if (METADATA_FIELDS.has(field)) continue
     if (!SMTP_FIELDS.has(field)) throw new HttpError(400, `Unknown SMTP setting: ${field}.`)
   }
 

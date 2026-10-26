@@ -25,6 +25,24 @@ test('does not expose saved SMTP passwords in settings responses', () => {
   assert.equal(Object.hasOwn(settings, 'password'), false)
 })
 
+test('accepts public SMTP metadata when testing settings', () => {
+  const previousAllowedHosts = process.env.SMTP_ALLOWED_HOSTS
+  process.env.SMTP_ALLOWED_HOSTS = 'smtp.example.com'
+  try {
+    assert.deepEqual(
+      validateSmtpCredentials({
+        ...credentials,
+        configured: true,
+        passwordSet: true,
+      }),
+      credentials,
+    )
+  } finally {
+    if (previousAllowedHosts === undefined) delete process.env.SMTP_ALLOWED_HOSTS
+    else process.env.SMTP_ALLOWED_HOSTS = previousAllowedHosts
+  }
+})
+
 test('rejects SMTP hosts that are not explicitly approved', () => {
   const previous = process.env.SMTP_ALLOWED_HOSTS
   delete process.env.SMTP_ALLOWED_HOSTS

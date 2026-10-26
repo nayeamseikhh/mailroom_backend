@@ -6,6 +6,7 @@ import {
 } from './credentialEncryption.js'
 
 const IMAP_FIELDS = new Set(['host', 'port', 'secure', 'username', 'password', 'mailbox'])
+const METADATA_FIELDS = new Set(['configured', 'passwordSet'])
 const HOST_PATTERN = /^(?=.{1,253}$)[a-z\d](?:[a-z\d.-]*[a-z\d])?$/
 
 export function validateImapCredentials(input, { requirePassword = true } = {}) {
@@ -13,6 +14,7 @@ export function validateImapCredentials(input, { requirePassword = true } = {}) 
     throw new HttpError(400, 'IMAP settings must be an object.')
   }
   for (const field of Object.keys(input)) {
+    if (METADATA_FIELDS.has(field)) continue
     if (!IMAP_FIELDS.has(field)) throw new HttpError(400, `Unknown IMAP setting: ${field}.`)
   }
 
