@@ -90,11 +90,26 @@ export async function getCampaignReadiness(req, res) {
       verifiedSender: getSenderAddress(smtpCredentials),
     })
   } catch (error) {
-    console.error('SMTP readiness check failed:', error.code || error.name)
+    console.error('SMTP readiness check failed:', error.code || error.name, error.message)
+    const authenticationFailure =
+      error.code === 'EAUTH' ||
+      error.responseCode === 535 ||
+      /5\.7\.[0-9]+/.test(error.response || '')
+    const reason = authenticationFailure
+      ? smtpCredentials.host === 'smtp.gmail.com'
+        ? 'Gmail rejected the SMTP login. For Gmail, use your full email address as username and create a 16-character Google App Password (with 2-Step Verification enabled).'
+        : 'The SMTP server rejected your username or password. Check your credentials in Settings > Sending.'
+      : error.code === 'ESOCKET'
+        ? 'The SMTP server closed the secure connection. Check your port and TLS setting (Port 587 with TLS off, or Port 465 with TLS on).'
+        : ['ETIMEDOUT', 'ECONNECTION', 'EDNS'].includes(error.code)
+          ? `Could not reach ${smtpCredentials.host}:${smtpCredentials.port}. Check host, port, or network access.`
+          : (error.message || 'Could not verify the SMTP connection.')
+
     res.json({
       smtpConfigured: true,
       smtpConnected: false,
       verifiedSender: getSenderAddress(smtpCredentials),
+      error: reason,
     })
   }
 }

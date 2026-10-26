@@ -39,7 +39,9 @@ export function validateSmtpCredentials(input, { requirePassword = true } = {}) 
   if (!/^(?=.{1,253}$)[a-z\d](?:[a-z\d.-]*[a-z\d])?$/.test(host)) {
     throw new HttpError(400, 'Enter a valid SMTP host.')
   }
-  const allowedHosts = (process.env.SMTP_ALLOWED_HOSTS || '')
+  const defaultAllowedHosts = 'smtp.gmail.com,smtp.office365.com,smtp-mail.outlook.com,smtp.sendgrid.net,smtp.mailgun.org,smtp.resend.com,smtp.zoho.com'
+  const allowedHostsString = process.env.SMTP_ALLOWED_HOSTS ?? defaultAllowedHosts
+  const allowedHosts = allowedHostsString
     .split(',')
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean)
