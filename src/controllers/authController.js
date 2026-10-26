@@ -72,6 +72,7 @@ export async function register(req, res) {
   res.cookie('token', token, COOKIE_OPTIONS(true))
   res.status(201).json({
     message: 'Account created successfully.',
+    token,
     user: user.toJSON(),
   })
 }
@@ -98,6 +99,7 @@ export async function login(req, res) {
   res.cookie('token', token, COOKIE_OPTIONS(remember))
   res.json({
     message: 'Logged in successfully.',
+    token,
     user: user.toJSON(),
   })
 }
